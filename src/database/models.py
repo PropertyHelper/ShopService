@@ -16,12 +16,14 @@ class Base(DeclarativeBase):
 class Shop(Base):
     __tablename__ = "shops"
     sid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    nichname: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
     joined_at: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now)
 
 class Cashier(Base):
     __tablename__ = "cashiers"
     cid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
+    account_name: Mapped[str]
     password_hash: Mapped[str]
     created_at: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now)
     shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.sid"))
@@ -30,8 +32,8 @@ class Item(Base):
     __tablename__ = "items"
     iid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
     name: Mapped[str]
-    description: Mapped[str]
-    photo_url: Mapped[str]
+    description: Mapped[str] = mapped_column(nullable=True)
+    photo_url: Mapped[str] = mapped_column(nullable=True)
     price: Mapped[int]
     percent_point_allocation: Mapped[int]
     shop_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shops.sid"))

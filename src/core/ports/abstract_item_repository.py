@@ -17,5 +17,5 @@ class AbstractItemRepository(ABC):
         ...
 
     @abstractmethod
-    async def save_items(self, items: list[Item]):
+    async def save_items(self, items: list[Item]) -> None:
         ...

@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from src.core.models import ShopCreate
+from src.core.models import ShopCreate, Shop
 
 
 class AbstractShopRepository(ABC):
     @abstractmethod
-    async def save_shop(self, shop: ShopCreate) -> None:
+    async def save_shop(self, shop: ShopCreate) -> Shop:
         ...
 
     @abstractmethod

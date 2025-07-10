@@ -16,3 +16,7 @@ class AbstractCashierRepository(ABC):
     @abstractmethod
     async def get_created_cashier_names(self, shop_id: uuid.UUID) -> list[str]:
         ...
+
+    @abstractmethod
+    async def get_cashier_by_account_and_shop(self, account_name: str, shop_nickname: str) -> Cashier:
+        ...

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 
 from src.container import Container
 from src.database.models import Base
-
+from src.api.v1.routers.cashier import router as cashier_router
 
 
 def build_app(container: Container) -> FastAPI:
@@ -33,6 +33,6 @@ def build_app(container: Container) -> FastAPI:
         yield
 
     app = FastAPI(lifespan=lifespan)
-    container.wire(modules=["..."])
-
+    container.wire(modules=["src.api.v1.routers.cashier"])
+    app.include_router(cashier_router, tags=["cashier"])
     return app

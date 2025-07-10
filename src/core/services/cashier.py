@@ -9,7 +9,7 @@ class CashierService:
         self.repository = repository
 
     async def create_cashier(self, create_cashier: CashierCreate) -> Cashier:
-        created_accounts = self.repository.get_created_cashier_names(create_cashier.shop_id)
+        created_accounts = await self.repository.get_created_cashier_names(create_cashier.shop_id)
         if create_cashier.account_name in created_accounts:
             raise ValueError("Account already exists")
         try:
@@ -31,3 +31,13 @@ class CashierService:
         except Exception as e:
             print(e)
             raise
+
+    async def get_cashier_by_account_and_shop(self, account_name: str, shop_nickname: str) -> Cashier | None:
+        try:
+            shop = await self.repository.get_cashier_by_account_and_shop(account_name, shop_nickname)
+        except ValueError:
+            return None
+        except Exception as e:
+            print(e)
+            raise
+        return shop

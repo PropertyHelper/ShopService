@@ -13,7 +13,6 @@ async def login_cashier(login_request: CashierLoginRequest, cashier_service: Cas
         raise HTTPException(status_code=403)
     cashier = await cashier_service.get_cashier_by_account_and_shop(login_request.account_name,
                                                                     login_request.shop_nickname)
-    print(cashier)
     return cashier
 
 

@@ -2,23 +2,32 @@ import uuid
 
 from pydantic import BaseModel, Field
 
+
+class ShopCreate(BaseModel):
+    nickname: str
+    password: str
+
+class ShopSave(ShopCreate):
+    sid: uuid.UUID
+
 class Shop(BaseModel):
     sid: uuid.UUID
-    nichname: str
+    nickname: str
 
-class ShopCreate(Shop):
+class CashierCreate(BaseModel):
+    account_name: str
+    shop_id: uuid.UUID
     password: str
+
+class CashierSave(CashierCreate):
+    cid: uuid.UUID
 
 class Cashier(BaseModel):
     cid: uuid.UUID
     account_name: str
     shop_id: uuid.UUID
 
-class CashierCreate(Cashier):
-    password: str
-
-class Item(BaseModel):
-    iid: uuid.UUID
+class ItemCreate(BaseModel):
     name: str
     description: str
     photo_url: str | None = None
@@ -26,6 +35,8 @@ class Item(BaseModel):
     percent_point_allocation: int = Field(ge=0)
     shop_id: uuid.UUID
 
+class Item(ItemCreate):
+    iid: uuid.UUID
 
 class ShopLogInRequest(BaseModel):
     nickname: str

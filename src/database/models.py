@@ -16,7 +16,7 @@ class Base(DeclarativeBase):
 class Shop(Base):
     __tablename__ = "shops"
     sid: Mapped[uuid.UUID] = mapped_column(primary_key=True)
-    nichname: Mapped[str] = mapped_column(unique=True)
+    nickname: Mapped[str] = mapped_column(unique=True)
     password_hash: Mapped[str]
     joined_at: Mapped[datetime.datetime] = mapped_column(default=datetime.datetime.now)
 

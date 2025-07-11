@@ -1,12 +1,12 @@
 import uuid
 from abc import ABC, abstractmethod
 
-from src.core.models import CashierCreate, Cashier
+from src.core.models import CashierSave, Cashier
 
 
 class AbstractCashierRepository(ABC):
     @abstractmethod
-    async def save_cashier(self, cashier: CashierCreate) -> Cashier:
+    async def save_cashier(self, cashier: CashierSave) -> Cashier:
         ...
 
     @abstractmethod

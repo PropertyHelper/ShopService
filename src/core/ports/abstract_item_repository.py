@@ -9,7 +9,7 @@ class AbstractItemRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_all_items(self) -> list[Item]:
+    async def get_all_items_by_shop_id(self, shop_id: uuid.UUID) -> list[Item]:
         ...
 
     @abstractmethod

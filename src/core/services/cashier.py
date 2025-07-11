@@ -1,6 +1,8 @@
+import uuid
+
 import bcrypt
 
-from src.core.models import CashierCreate, Cashier, CashierLoginRequest
+from src.core.models import CashierCreate, Cashier, CashierLoginRequest, CashierSave
 from src.core.ports.abstract_cashier_repository import AbstractCashierRepository
 
 
@@ -10,12 +12,15 @@ class CashierService:
 
     async def create_cashier(self, create_cashier: CashierCreate) -> Cashier:
         created_accounts = await self.repository.get_created_cashier_names(create_cashier.shop_id)
-        if create_cashier.account_name in created_accounts:
+        if create_cashier.account_name.lower() in [created_account.lower() for created_account in created_accounts]:
             raise ValueError("Account already exists")
         try:
             password_hash = bcrypt.hashpw(create_cashier.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-            create_cashier.password = password_hash
-            cashier = await self.repository.save_cashier(create_cashier)
+            cashier_to_save = CashierSave(account_name=create_cashier.account_name.lower(),
+                                          shop_id=create_cashier.shop_id,
+                                          password=password_hash,
+                                          cid=uuid.uuid4())
+            cashier = await self.repository.save_cashier(cashier_to_save)
             return cashier
         except Exception as e:
             print(e)
@@ -23,8 +28,8 @@ class CashierService:
 
     async def cashier_can_login(self, login_request: CashierLoginRequest) -> bool:
         try:
-            db_password_hash = await self.repository.get_password_hash(login_request.shop_nickname,
-                                                                       login_request.account_name)
+            db_password_hash = await self.repository.get_password_hash(login_request.shop_nickname.lower(),
+                                                                       login_request.account_name.lower())
             if not db_password_hash:
                 return False
             return bcrypt.checkpw(login_request.password.encode("utf-8"), db_password_hash.encode("utf-8"))
@@ -34,7 +39,7 @@ class CashierService:
 
     async def get_cashier_by_account_and_shop(self, account_name: str, shop_nickname: str) -> Cashier | None:
         try:
-            shop = await self.repository.get_cashier_by_account_and_shop(account_name, shop_nickname)
+            shop = await self.repository.get_cashier_by_account_and_shop(account_name.lower(), shop_nickname.lower())
         except ValueError:
             return None
         except Exception as e:

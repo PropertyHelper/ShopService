@@ -24,9 +24,9 @@ class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
     async def save_item(self, item: Item) -> None:
         await self.save_items([item])
 
-    async def get_all_items(self) -> list[Item]:
+    async def get_all_items_by_shop_id(self, shop_id: uuid.UUID) -> list[Item]:
         async with self.get_session() as session:
-            stmt = select(ItemModel)
+            stmt = select(ItemModel).where(ItemModel.shop_id == shop_id)
             result = await session.execute(stmt)
             items = [transform_item_model_to_domain(item) for item in result.scalars().all()]
             return items

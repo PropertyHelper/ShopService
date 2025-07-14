@@ -42,3 +42,11 @@ class ShopService:
             print(e)
             raise
         return shop
+
+    async def get_names(self, shop_id_list: list[uuid.UUID]) -> list[str]:
+        try:
+            names = await self.repository.get_names(shop_id_list)
+        except Exception as e:
+            print(e)
+            raise
+        return names

@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 
 from src.api.v1.dependencies import get_shop_service, get_item_service
-from src.api.v1.models import ShopItems
+from src.api.v1.models import ShopItems, ShopNames
 from src.core.models import ShopCreate, ShopLogInRequest, Shop
 from src.core.services.item import ItemService
 from src.core.services.shop import ShopService
@@ -36,3 +36,10 @@ async def login_shop(login_request: ShopLogInRequest, shop_service: ShopService 
 async def get_items(uid: uuid.UUID, item_service: ItemService = Depends(lambda: get_item_service())) -> ShopItems:
     items = await item_service.get_all_items_by_shop_id(uid)
     return ShopItems(items=items, total=len(items))
+
+
+@router.post("/names")
+async def get_names(shop_id_list: list[uuid.UUID], shop_service: ShopService = Depends(lambda: get_shop_service())) -> ShopNames:
+    names = await shop_service.get_names(shop_id_list)
+    print(names)
+    return ShopNames(names=names)

@@ -1,3 +1,5 @@
+import uuid
+
 from sqlalchemy import select
 
 from src.core.models import ShopSave, Shop
@@ -37,3 +39,10 @@ class SQLShopRepository(SQLBaseClass, AbstractShopRepository):
                 sid=shop_model.sid,
                 nickname=shop_model.nickname
             )
+
+    async def get_names(self, shop_id_list: list[uuid.UUID]) -> list[str]:
+        async with self.get_session() as session:
+            stmt = select(ShopModel.sid, ShopModel.nickname).where(ShopModel.sid.in_(shop_id_list))
+            result = await session.execute(stmt)
+            sid_to_name = {sid: name for sid, name in result.all()}
+            return [sid_to_name.get(sid, "") for sid in shop_id_list]

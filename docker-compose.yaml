@@ -1,5 +1,5 @@
 services:
-  db:
+  shop_db:
     image: postgres
     env_file:
       - .postgres.env
@@ -16,6 +16,6 @@ services:
     env_file:
       - .env
     depends_on:
-      - db
+      - shop_db
 volumes:
   postgres_shop:

@@ -41,3 +41,12 @@ class ItemService:
         except Exception as e:
             print(e)
             raise
+
+    async def get_items(self, item_id_list: list[uuid.UUID]) -> list[Item]:
+        try:
+            return await self.repository.get_items(item_id_list)
+        except ValueError:
+            return None
+        except Exception as e:
+            print(e)
+            raise

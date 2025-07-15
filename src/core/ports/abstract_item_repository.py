@@ -19,3 +19,7 @@ class AbstractItemRepository(ABC):
     @abstractmethod
     async def save_items(self, items: list[Item]) -> None:
         ...
+
+    @abstractmethod
+    async def get_items(self, item_id_list: list[uuid.UUID]) -> list[Item]:
+        ...

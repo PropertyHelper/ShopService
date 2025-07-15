@@ -53,3 +53,10 @@ class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
         async with self.get_session() as session:
             session.add_all(models)
             await session.commit()
+
+    async def get_items(self, item_id_list: list[uuid.UUID]) -> list[Item]:
+        async with self.get_session() as session:
+            stmt = select(ItemModel).where(ItemModel.iid.in_(item_id_list))
+            result = await session.execute(stmt)
+            items = result.scalars().all()
+            return [transform_item_model_to_domain(item) for item in items]

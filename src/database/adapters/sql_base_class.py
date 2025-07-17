@@ -14,6 +14,6 @@ class SQLBaseClass:
         """
         Create new database session.
 
-        :param Async database session for transaction management
+        :return Async database session for transaction management
         """
         return self.session_factory()

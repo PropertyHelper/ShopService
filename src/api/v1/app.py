@@ -14,11 +14,8 @@ def build_app(container: Container) -> FastAPI:
     """
     Application factory that creates and configures FastAPI instance.
 
-    Args:
-        container: Configured dependency injection container
-
-    Returns:
-        Configured FastAPI application instance
+    :param container: Configured dependency injection container
+    :return Configured FastAPI application instance
     """
 
     @asynccontextmanager
@@ -36,11 +33,14 @@ def build_app(container: Container) -> FastAPI:
         yield
 
     app = FastAPI(lifespan=lifespan)
+    # set files where the DI is happening
+    # FastAPI's DI trigeres container DI
     container.wire(modules=["src.api.v1.routers.cashier",
                             "src.api.v1.routers.shop",
                             "src.api.v1.routers.item"])
     app.include_router(cashier_router, tags=["cashier"])
     app.include_router(shop_router, tags=["shop"])
     app.include_router(item_router, tags=["item"])
+    # exclude metrics to avoid counting mertics on metrics endpoint
     Instrumentator(excluded_handlers=["/metrics"]).instrument(app).expose(app)
     return app

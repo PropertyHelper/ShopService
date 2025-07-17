@@ -8,6 +8,13 @@ router = APIRouter(prefix="/cashier")
 
 @router.post("/login")
 async def login_cashier(login_request: CashierLoginRequest, cashier_service: CashierService = Depends(lambda: get_cashier_service())) -> Cashier:
+    """
+    Authenticate cashier.
+
+    :param login_request: cashier credentials
+    :param cashier_service: Injected cashier service
+    :return: cashier domain model
+    """
     can_login = await cashier_service.cashier_can_login(login_request)
     if not can_login:
         raise HTTPException(status_code=403)
@@ -19,6 +26,13 @@ async def login_cashier(login_request: CashierLoginRequest, cashier_service: Cas
 
 @router.post("/")
 async def add_cashier(cashier_create: CashierCreate, cashier_service: CashierService = Depends(lambda: get_cashier_service())) -> Cashier:
+    """
+    Save a cashier.
+
+    :param cashier_create: cashier create object capturing details
+    :param cashier_service: Injected cashier service
+    :return: cashier domain service
+    """
     try:
         cashier = await cashier_service.create_cashier(cashier_create)
     except ValueError:

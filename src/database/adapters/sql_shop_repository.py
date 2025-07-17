@@ -9,7 +9,20 @@ from src.database.models import Shop as ShopModel
 
 
 class SQLShopRepository(SQLBaseClass, AbstractShopRepository):
+    """
+    A repository to interact with infrastructure.
+
+    In our case, it interacts with PostgreSQL via SQLAlchemy.
+    Implements the AbstractShopRepository contract.
+    Subclasses the SQLBaseClass to get basic things like getting a connection.
+    """
     async def save_shop(self, shop_create: ShopSave) -> Shop:
+        """
+        Save shop in the database from dto and get the domain model
+
+        :param shop_create: data transfer object with generated id.
+        :return: domain value of shop
+        """
         async with self.get_session() as session:
             shop_model = ShopModel(sid=shop_create.sid,
                                    password_hash=shop_create.password,
@@ -20,6 +33,12 @@ class SQLShopRepository(SQLBaseClass, AbstractShopRepository):
 
 
     async def get_shop_hashed_password(self, nickname: str) -> str:
+        """
+        Get the shop management password hash by nickname to compare later.
+
+        :param nickname: shop unique nick name
+        :return: either hash, or empty string if nickname is not found
+        """
         async with self.get_session() as session:
             stmt = select(ShopModel.password_hash).where(ShopModel.nickname == nickname)
             result = await session.execute(stmt)
@@ -29,6 +48,13 @@ class SQLShopRepository(SQLBaseClass, AbstractShopRepository):
             return password
 
     async def get_shop_by_nickname(self, nickname: str) -> Shop:
+        """
+        Get domain model of shop from the database by nickname.
+
+        :param nickname: shop unique nick name
+        :return: shop domain model
+        :raise ValueError if the shop does not exist
+        """
         async with self.get_session() as session:
             stmt = select(ShopModel).where(ShopModel.nickname == nickname)
             result = await session.execute(stmt)
@@ -41,6 +67,16 @@ class SQLShopRepository(SQLBaseClass, AbstractShopRepository):
             )
 
     async def get_names(self, shop_id_list: list[uuid.UUID]) -> list[str]:
+        """
+        Get list of shop names by a list of uuid's.
+
+        Rules:
+         - If the uuid is met multiple times, each time the name is put.
+         - If the uuid provided does not correspond to a shop, empty string is inserted.
+
+        :param shop_id_list: list of shop id's
+        :return: list of shop names
+        """
         async with self.get_session() as session:
             stmt = select(ShopModel.sid, ShopModel.nickname).where(ShopModel.sid.in_(shop_id_list))
             result = await session.execute(stmt)

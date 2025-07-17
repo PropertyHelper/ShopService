@@ -9,6 +9,12 @@ from src.database.models import Item as ItemModel
 
 
 def transform_item_model_to_domain(item_model: ItemModel) -> Item:
+    """
+    Transform db item model into the domain model.
+
+    :param item_model: database model
+    :return: domain model of the item.
+    """
     return Item(
         iid=item_model.iid,
         name=item_model.name,
@@ -21,10 +27,29 @@ def transform_item_model_to_domain(item_model: ItemModel) -> Item:
 
 
 class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
+    """
+    A repository to interact with infrastructure.
+
+    In our case, it interacts with PostgreSQL via SQLAlchemy.
+    Implements the AbstractItemRepository contract.
+    Subclasses the SQLBaseClass to get basic things like getting a connection.
+    """
     async def save_item(self, item: Item) -> None:
+        """
+        Persist a single item using multiple item handler.
+
+        :param item: a domain model of item to save
+        :return: None
+        """
         await self.save_items([item])
 
     async def get_all_items_by_shop_id(self, shop_id: uuid.UUID) -> list[Item]:
+        """
+        Get all items provided by a shop.
+
+        :param shop_id: shop uuid
+        :return: list of item domain models
+        """
         async with self.get_session() as session:
             stmt = select(ItemModel).where(ItemModel.shop_id == shop_id)
             result = await session.execute(stmt)
@@ -32,6 +57,13 @@ class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
             return items
 
     async def get_item(self, item_id: uuid.UUID) -> Item:
+        """
+        Get a particular item by its id.
+
+        :param item_id: uuid
+        :return: item domain model
+        :raise ValueError if the item does not exist
+        """
         async with self.get_session() as session:
             stmt = select(ItemModel).where(ItemModel.iid == item_id)
             result = await session.execute(stmt)
@@ -41,6 +73,12 @@ class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
             return transform_item_model_to_domain(item)
 
     async def save_items(self, items: list[Item]) -> None:
+        """
+        Save multiple items, transforming domain objects into db objects.
+
+        :param items: a list of domain models of item
+        :return: None
+        """
         models = [None] * len(items)
         for idx, item in enumerate(items):
             models[idx] = ItemModel(iid=item.iid,
@@ -55,6 +93,16 @@ class SQLItemRepository(SQLBaseClass, AbstractItemRepository):
             await session.commit()
 
     async def get_items(self, item_id_list: list[uuid.UUID]) -> list[Item]:
+        """
+        Get multiple items, selected by a list of uuids.
+
+        :param item_id_list: item uids
+        :return: a list of domain item models
+        Note:
+            - it is important for each item_id_list element to be a valid item.
+              Otherwise, the order is not guaranteed.
+              Best to use to get the details of some later.
+        """
         async with self.get_session() as session:
             stmt = select(ItemModel).where(ItemModel.iid.in_(item_id_list))
             result = await session.execute(stmt)
